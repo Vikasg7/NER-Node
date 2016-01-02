@@ -1,37 +1,71 @@
 var spawn = require("child_process").spawn
 var socket = require("net").Socket()
-var server
 
-console.log("Creating the server...");
+function SocketNER(port, classifierFileName, pathToNER, callback) {
+	//defining defaults if arguments is a false value
+	port = port || 1234
+	classifierFileName = classifierFileName || "english.all.3class.distsim.crf.ser.gz"
+	pathToNER = pathToNER || "/"
 
-(function startServer() {
-	server = spawn("java",["-mx750m", "-cp", "StanfordNER/stanford-ner.jar", "edu.stanford.nlp.ie.NERServer", "-loadClassifier", "StanfordNER/english.all.3class.distsim.crf.ser.gz", 
-				   "-port", 8080, "-outputFormat", "inlineXML"
-				   ])
-})()
+	// starting server as a seperate process
+	var server = spawn(
+		"java",[
+			"-mx750m", "-cp", 
+			pathToNER + "stanford-ner.jar", 
+			"edu.stanford.nlp.ie.NERServer", 
+			"-loadClassifier", pathToNER + classifierFileName, 
+	   		"-port", port, "-outputFormat", "inlineXML"
+   		]
+   	)
 
-setTimeout(connectToServer, 10000) // server may take upto 10 seconds to load
+	// Setup a Socket Connection after Server loads the Classifier
+   	// I don't know why server's stderr stream gets all output and why stdout don't
+   	server.stderr.on("data", function (data) {
+   		// Server would finish loading, when it flushes out 'done [x secs]'
+   		if (String(data).search("done") > -1) {
+   			// When Socket is open to Server, invoking a callback function socketNER Object
+   			socket.connect(port, function () { callback(socketNER) })
+   			socket.on("error", function (err) { console.log(err.toString()) })
+   		}
+   	})
 
-function connectToServer() {
+	var socketNER = {}
+   	socketNER.getEntities = function (rawText, requireEntity, callback) {
+   		// replacing line breaks with spaces and adding two line breaks at the end
+   		// for an unknown reason. May be, it relates to how an request should be sent
+   		rawText = rawText.replace(/[\r\n]/g, " ") + "\n\n"
+   		socket.write(rawText)
+   		socket.on("data", function (data) {
+   			callback(socketNER.parser(data.toString(), requireEntity))
+   		})
+   	}
 
-	socket.connect(8080, "localhost", function () {
-		console.log("Connected to server!!")
-		socket.write("My name is Vikas Gautam\n\n")
-	})
+   	socketNER.close = function () {
+   		socket.end()
+   		server.kill()
+   	}
 
-	socket.on("data", function (data) {
-		console.log(String(data))
-		socket.end()
-		server.kill()
-	})
-
-	socket.on("error", function (err) {
-		console.log("This is my error")
-		console.log(err.toString())
-	})
-
-	socket.on("end", function () {
-		console.log("Connection has been closed successfully!!")
-	})
+   	// Passing in the parser to the socketNER return object, 
+   	// so that user could be able to define his own parser later on
+   	socketNER.parser = function (taggedText, requiredEntity) {
+   		var matches
+   		var entities = {}	//return value of parser function
+   		// Change the regex scope according to user's Entitry requirements
+   		// Please always pass the requireEntity in Upper case as NER uses upper cased Tags
+   		var re = requiredEntity ? new RegExp(["<(",requiredEntity,")>(.*?)<\/",requiredEntity,">"].join(""), "g") : /<(.*?)>(.*?)<\/.*?>/g
+   		while((matches = re.exec(taggedText)) !== null) {
+   			if (entities[matches[1]]) {
+   				// if tagName is present, then pushing in the tagValue Array
+   				entities[matches[1]].push(matches[2])
+   			}
+   			else {
+   				// otherwise adding the tagName with a new tagValue Array
+   				entities[matches[1]] = [matches[2]]
+   			}
+   		}
+   		return entities
+   	}
 
 }
+
+module.exports = SocketNER

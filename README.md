@@ -1,4 +1,14 @@
 # NER-Node
 Library to connect to Stanford NER local Server, send in the Raw Text and get back Entity JSON
+**********************************************************************************************
 
-I am in process of writting this library, So the visitors can't or shouldn't use it yet.
+Library is logic wise final but still needs some testing. You can use it and mark any issues and feedback.
+You can look at the test.js and the SocketNER.js for documentation as the formal one is yet to be written.
+
+functions and its parameters
+
+function SocketNER(port, classifierFileName, pathToNER, function (OBJ) {
+	OBJ.parser = function (taggedText, requiredEntity) {  } // you can also redefine it
+	OBJ.getEntities(rawText, requiredEntity, callback(JSONdata))
+	OBJ.close() // it closes the socket and kills the server process
+})
