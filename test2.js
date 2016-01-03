@@ -9,7 +9,7 @@
 var rawText = 
 [
 	'Steven Paul Jobs (/\ˈdʒɒbz/; February 24, 1955 – October 5,',
-	'2011) was an American technology entrepreneur, visionary and ',
+	'2011) was an American technology entrepreneur, visionary and',
 	'inventor. He was the co-founder, chairman, and chief executive',
 	' officer (CEO) of Apple Inc.; CEO and largest shareholder of Pixar',
 	' Animation Studios;[3] a member of The Walt Disney Company\'s board',
@@ -31,11 +31,19 @@ var rawText =
 	' High junior Chrisann Brennan. Jobs briefly attended Reed College',
 	' in 1972 before dropping out, deciding to travel through India in',
 	' 1974 and study Buddhism.',
-].join(" ")
+]
+
+// As the getEntities function is a synchronous function,
+// you can use it inside a loop effectively.
 
 var nerServer = require("./SocketNER")
+
 nerServer(8080, null , "./StanfordNER/", function (ner) {
-	var jsonEntities = ner.getEntities(rawText, "")
-	console.log(jsonEntities)
+
+	rawText.forEach(function (text, i) {
+		console.log(text)
+		var jsonEntities = ner.getEntities(text, "")
+		console.log(jsonEntities)
+	})
 	ner.close()
 })
