@@ -1,17 +1,28 @@
-# NER-Node
-Library to connect to Stanford NER local Server, send in the Raw Text and get back Entity JSON
-**********************************************************************************************
+<h1>NER-Node</h2>
+<h5>Library to connect to Stanford NER local Server, send in the Raw Text and get back Entity JSON</h5>
 
-Library is logic wise final but still needs some testing. You can use it and mark any issues and feedback.
-
-You can look at the test.js and the SocketNER.js for documentation as the formal one is yet to be written.
-
-functions and its parameters
+<h4>Installation</h4>
+<ol>
+	<li>
+		Download the 
+		<a href="https://github.com/Vikasg7/NER-Node/archive/master.zip">NER-Node</a>
+		package
+	</li>
+	<li>Unzip it and cd to the extracted folder using Command line Terminal</li>
+	<li>Use "npm install"</li>
+</ol>
+<h4>Usage</h4>
+<p>Here is an example of how you can call the library :-</p>
 ```javascript
-var SocketNER = require("./SocketNER")
-function SocketNER(port, classifierFileName, pathToNER, function (OBJ) {
-	OBJ.parser = function (taggedText, requiredEntity) {  } // you can also redefine it
-	OBJ.getEntities(rawText, requiredEntity, callback(JSONdata))
-	OBJ.close() // it closes the socket and kills the server process
+var socketNER = require("SocketNER")
+socketNER(port, classifierFileName, pathToNER, function (obj) {
+	// you can define your own function to parse tagged text
+	obj.parser = function (taggedText) {..... return entities}
+	// A Sync function to get the Entities JSON
+	obj.getEntities(rawText, requiredEntity)
+	// closes the server and socket when done
+	obj.close()
 })
 ```
+<p>You can try the test.js and test2.js to test workability. 
+I have added a note in the test flies on which files you require to run the NER server</p>
