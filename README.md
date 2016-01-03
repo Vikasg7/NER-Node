@@ -8,6 +8,7 @@ You can look at the test.js and the SocketNER.js for documentation as the formal
 
 functions and its parameters
 ```javascript
+var SocketNER = require("./SocketNER")
 function SocketNER(port, classifierFileName, pathToNER, function (OBJ) {
 	OBJ.parser = function (taggedText, requiredEntity) {  } // you can also redefine it
 	OBJ.getEntities(rawText, requiredEntity, callback(JSONdata))

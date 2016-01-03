@@ -52,7 +52,8 @@ function SocketNER(port, classifierFileName, pathToNER, callback) {
    		var entities = {}	//return value of parser function
    		// Change the regex scope according to user's Entitry requirements
    		// Please always pass the requireEntity in Upper case as NER uses upper cased Tags
-   		var re = requiredEntity ? new RegExp(["<(",requiredEntity,")>(.*?)<\/",requiredEntity,">"].join(""), "g") : /<(.*?)>(.*?)<\/.*?>/g
+   		var re = requiredEntity ? new RegExp(["<(",requiredEntity,")>(.*?)<\/",requiredEntity,">"].join(""), "g") 
+   								: /<([A-Z]+?)>(.*?)<\/[A-Z]+?>/g
    		while((matches = re.exec(taggedText)) !== null) {
    			if (entities[matches[1]]) {
    				// if tagName is present, then pushing in the tagValue Array
