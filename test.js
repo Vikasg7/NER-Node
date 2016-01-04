@@ -1,11 +1,4 @@
-// Note :-  For the purpose of this test, I have placed three files in the "./StanfordNER/" folder
-// 1. english.all.3class.distsim.crf.ser.gz
-// 2. english.all.3class.distsim.prop
-// 3. stanford-ner.jar
-// Latest Java (x86 or x64, based on your symtems architecture) should be installed at your placed
-// for stanford-ner.jar to work and load the server
-
-
+// Terminal command to run the test file :- node test.js
 var rawText = 
 [
 	'Steven Paul Jobs (/\ˈdʒɒbz/; February 24, 1955 – October 5,',
@@ -36,6 +29,76 @@ var rawText =
 var nerServer = require("./SocketNER")
 nerServer(8080, null , "./StanfordNER/", function (ner) {
 	var jsonEntities = ner.getEntities(rawText, "")
+	console.log("Test1 All Entities:-")
 	console.log(jsonEntities)
+
+	var persons = ner.getEntities(rawText, "PERSON")
+	console.log("\n\nTest2 Only Persons:-")
+	console.log(persons)
+
+	var organizations = ner.getEntities(rawText, "ORGANIZATION")
+	console.log("\n\nTest3 Only Organizations:-")
+	console.log(organizations)
+
+	var locations = ner.getEntities(rawText, "LOCATION")
+	console.log("\n\nTest4 Only Locations:-")
+	console.log(locations)
+
 	ner.close()
 })
+
+//Output
+// Test1 All Entities:-
+// { PERSON: 
+//    [ 'Steven Paul Jobs',
+//      'Steve Wozniak',
+//      'Walter Isaacson',
+//      'Wozniak',
+//      'Chrisann Brennan' ],
+//   ORGANIZATION: 
+//    [ 'Apple Inc.',
+//      'Pixar  Animation Studios',
+//      'The Walt Disney Company',
+//      'Pixar',
+//      'NeXT Inc',
+//      'Apple',
+//      'Homestead High School',
+//      'Homestead High',
+//      'Reed College' ],
+//   LOCATION: 
+//    [ 'San Francisco',
+//      'San Francisco  Bay Area',
+//      'Cupertino',
+//      'California',
+//      'India' ] }
+
+
+// Test2 Only Persons:-
+// { PERSON: 
+//    [ 'Steven Paul Jobs',
+//      'Steve Wozniak',
+//      'Walter Isaacson',
+//      'Wozniak',
+//      'Chrisann Brennan' ] }
+
+
+// Test3 Only Organizations:-
+// { ORGANIZATION: 
+//    [ 'Apple Inc.',
+//      'Pixar  Animation Studios',
+//      'The Walt Disney Company',
+//      'Pixar',
+//      'NeXT Inc',
+//      'Apple',
+//      'Homestead High School',
+//      'Homestead High',
+//      'Reed College' ] }
+
+
+// Test4 Only Locations:-
+// { LOCATION: 
+//    [ 'San Francisco',
+//      'San Francisco  Bay Area',
+//      'Cupertino',
+//      'California',
+//      'India' ] }

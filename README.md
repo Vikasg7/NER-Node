@@ -5,11 +5,12 @@
 <ol>
 	<li>
 		Download the 
-		<a href="https://github.com/Vikasg7/NER-Node/archive/master.zip">NER-Node</a>
+		<a href="https://github.com/Vikasg7/NER-Node/archive/master.zip" target="_blank">NER-Node</a>
 		package
 	</li>
 	<li>Unzip it and cd to the extracted folder using Command line Terminal</li>
 	<li>Use "npm install"</li>
+	<li>You can now try the test files to see the library working.</li>
 </ol>
 <h4>Usage</h4>
 <p>Here is an example of how you can call the library :-</p>
@@ -24,5 +25,11 @@ socketNER(port, classifierFileName, pathToNER, function (obj) {
 	obj.close()
 })
 ```
-<p>You can try the test.js and test2.js to test workability. 
-I have added a note in the test flies on which files you require to run the NER server</p>
+
+<h4>Issues & Suggestions</h4>
+<p>If you find an issues using the Library OR if you have any suggestions to make it perform better, then you can write to us in the Issues Section.</p>
+
+<h4>Donate</h4>
+<p>If this repository helps you anyhow and you can want to contribute, then you can 
+	<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=F3QQCWFPWHBYE" target="_blank">Buy Me Coffee</a>
+</p>
