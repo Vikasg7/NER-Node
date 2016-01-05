@@ -3,18 +3,14 @@
 
 <h4>Installation</h4>
 <ol>
-	<li>
-		Download the 
-		<a href="https://github.com/Vikasg7/NER-Node/archive/master.zip" target="_blank">NER-Node</a>
-		package
-	</li>
-	<li>Unzip it and cd to the extracted folder using Command line Terminal</li>
-	<li>Use "npm install"</li>
+	<li>npm install ner-node</li>
 	<li>You can now try the test files to see the library working.</li>
 </ol>
 <h4>Usage</h4>
 <p>Here is an example of how you can call the library :-</p>
-```javascript
+
+```
+
 var socketNER = require("SocketNER")
 socketNER(port, classifierFileName, pathToNER, function (obj) {
 	// you can define your own function to parse tagged text
@@ -24,6 +20,7 @@ socketNER(port, classifierFileName, pathToNER, function (obj) {
 	// closes the server and socket when done
 	obj.close()
 })
+
 ```
 
 <h4>Issues & Suggestions</h4>
