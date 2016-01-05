@@ -11,7 +11,7 @@
 
 ```
 
-var socketNER = require("SocketNER")
+var socketNER = require("ner-node")
 socketNER(port, classifierFileName, pathToNER, function (obj) {
 	// you can define your own function to parse tagged text
 	obj.parser = function (taggedText) {..... return entities}
@@ -22,6 +22,10 @@ socketNER(port, classifierFileName, pathToNER, function (obj) {
 })
 
 ```
+<p>
+	<strong>Note:-</strong>
+	The npm package doesn't come with StanfordNER folder. You can download the latest from Stanford NER website OR get it from the git hub repository.
+</p>
 
 <h4>Issues & Suggestions</h4>
 <p>If you find an issues using the Library OR if you have any suggestions to make it perform better, then you can write to us in the Issues Section.</p>

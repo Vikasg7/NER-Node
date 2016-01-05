@@ -30,7 +30,7 @@ var rawText =
 // As the getEntities function is a synchronous function,
 // you can use it inside a loop effectively.
 
-var nerServer = require("./SocketNER")
+var nerServer = require("ner-node")
 
 nerServer(8080, null , "./StanfordNER/", function (ner) {
 

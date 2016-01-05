@@ -26,7 +26,7 @@ var rawText =
 	' 1974 and study Buddhism.',
 ].join(" ")
 
-var nerServer = require("./SocketNER")
+var nerServer = require("ner-node")
 nerServer(8080, null , "./StanfordNER/", function (ner) {
 	var jsonEntities = ner.getEntities(rawText, "")
 	console.log("Test1 All Entities:-")
