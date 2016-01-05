@@ -2,12 +2,24 @@
   "name": "ner-node",
   "version": "0.0.1",
   "description": "Node library for spawning NER server and pinging it to get entities out of raw text.",
-  "main": "main.js",
+  "main": "SocketNER.js",
   "scripts": {
     "test": "node test.js"
   },
-  "author": "Vikas Gautam",
-  "license": "ISC",
+  "author": "Vikas Gautam <v33vikasgautam@gmail.com> (http://mytrikks.blogspot.com)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url" : "https://github.com/Vikasg7/NER-Node.git"
+  },
+  "keywords":[
+    "Stanford NER",
+    "Named Entity Recognition",
+    "Nodejs",
+    "NER Server",
+    "Javascript",
+    "Socket NER"
+  ],
   "dependencies": {
     "deasync": "^0.1.4"
   }
