@@ -53,47 +53,47 @@ function SocketNER(port, classifierFileName, pathToNER, callback) {
 
    var socketNER = {}
       
-      socketNER.getEntities = function (rawText, requiredEntity) {
-         // taking a copy of requiredEntity preference
-         requiredEntityG = requiredEntity
-         // replacing line breaks with spaces and adding two line breaks at the end
-         // for an unknown reason. May be, it relates to how a request should be sent through socket.
-         rawTextG = rawText.replace(/[\r\n\f\t\v]/g, " ") + "\n\n"
-         // Reconnecting on each getEntities function call, that's neccessary as the NER sever closes
-         // the socket after each such call.
-         socket.connect(port)       
-         // deasync would won't halt the Event Loop ie. it would also next events to be met
-         // but at the same time, it won't exit this function untill jsonEntities comes back.
-         deasync.loopWhile(function () { return (jsonEntities.length !== 1) })
-         return jsonEntities.pop()  // ** or jsonEntities.shift()
-      }
+   socketNER.getEntities = function (rawText, requiredEntity) {
+      // taking a copy of requiredEntity preference
+      requiredEntityG = requiredEntity
+      // replacing line breaks with spaces and adding two line breaks at the end
+      // for an unknown reason. May be, it relates to how a request should be sent through socket.
+      rawTextG = rawText.replace(/[\r\n\f\t\v]/g, " ") + "\n\n"
+      // Reconnecting on each getEntities function call, that's neccessary as the NER sever closes
+      // the socket after each such call.
+      socket.connect(port)       
+      // deasync would won't halt the Event Loop ie. it would also next events to be met
+      // but at the same time, it won't exit this function untill jsonEntities comes back.
+      deasync.loopWhile(function () { return (jsonEntities.length !== 1) })
+      return jsonEntities.pop()  // ** or jsonEntities.shift()
+   }
 
-      // Closes the socket and kills the server process
-      socketNER.close = function () {
-         socket.end()
-         server.kill()
-      }
+   // Closes the socket and kills the server process
+   socketNER.close = function () {
+      socket.end()
+      server.kill()
+   }
 
-      // Passing in 'the parser' to the socketNER return object, 
-      // so that user could be able to define his own parser later on
-      socketNER.parser = function (taggedText, requiredEntity) {
-         var matches, entities = {} //return value of parser function
-         // Change the regex scope according to user's Entitry requirements
-         // Please always pass the requiredEntity in Upper case as NER uses upper cased Tags
-         var re = requiredEntity ? new RegExp(["<(",requiredEntity,"?)>(.*?)<\/",requiredEntity,"?>"].join(""), "g") 
-                                 : /<([A-Z]+?)>(.*?)<\/[A-Z]+?>/g
-         while((matches = re.exec(taggedText)) !== null) {
-            if (entities[matches[1]]) {
-               // if tagName is present, then pushing in the tagValue Array
-               entities[matches[1]].push(matches[2])
-            }
-            else {
-               // otherwise adding the tagName with a new tagValue Array
-               entities[matches[1]] = [matches[2]]
-            }
+   // Passing in 'the parser' to the socketNER return object, 
+   // so that user could be able to define his own parser later on
+   socketNER.parser = function (taggedText, requiredEntity) {
+      var matches, entities = {} //return value of parser function
+      // Change the regex scope according to user's Entitry requirements
+      // Please always pass the requiredEntity in Upper case as NER uses upper cased Tags
+      var re = requiredEntity ? new RegExp(["<(",requiredEntity,"?)>(.*?)<\/",requiredEntity,"?>"].join(""), "g") 
+                              : /<([A-Z]+?)>(.*?)<\/[A-Z]+?>/g
+      while((matches = re.exec(taggedText)) !== null) {
+         if (entities[matches[1]]) {
+            // if tagName is present, then pushing in the tagValue Array
+            entities[matches[1]].push(matches[2])
          }
-         return entities
+         else {
+            // otherwise adding the tagName with a new tagValue Array
+            entities[matches[1]] = [matches[2]]
+         }
       }
+      return entities
+   }
 
 }
 
