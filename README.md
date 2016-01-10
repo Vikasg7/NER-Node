@@ -33,4 +33,7 @@ socketNER(port, classifierFileName, pathToNER, function (obj) {
 <h4>Donate</h4>
 <p>If this repository helps you anyhow, please don't mind coming back and 
 	<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=F3QQCWFPWHBYE" target="_blank">Buy Me Coffee</a>
+OR you can use 
+	<a href="https://gratipay.com/~xcelancer/" target="_blank">Gratipay</a>
+to show your appreciation and gratitude.
 </p>
