@@ -1,2 +1,2 @@
-StanfordNER/
-node_modules/
+/StanfordNER/
+/node_modules/*
