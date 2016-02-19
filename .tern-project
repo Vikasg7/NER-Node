@@ -1,0 +1,4 @@
+{
+	"libs":["browser","ecma5", "jquery"],
+	"loadEagerly": ["./node_modules/request/request.js"]
+}

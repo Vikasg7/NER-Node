@@ -1,7 +1,6 @@
 // Terminal command to run the test file :- node test2.js
 
-var rawText = 
-[
+var rawText = [
 	'Steven Paul Jobs (/\ˈdʒɒbz/; February 24, 1955 – October 5,',
 	'2011) was an American technology entrepreneur, visionary and',
 	'inventor. He was the co-founder, chairman, and chief executive',
@@ -30,7 +29,7 @@ var rawText =
 // As the getEntities function is a synchronous function,
 // you can use it inside a loop effectively.
 
-var nerServer = require("ner-node")
+var nerServer = require("./SocketNER.js")
 
 nerServer(8080, null , "./StanfordNER/", function (ner) {
 
