@@ -39,24 +39,28 @@ function SocketNER(port, classifierFileName, pathToNER, callback) {
          ]
       )
 
-      client.stdout.once("data", function (data) {
-         if (data.toString().search("Input some text") > -1) {
+      // This "data" listener would be removed soon.      
+      client.stdout.on("data", reader) 
+
+      function reader(data) {
+         if (data.toString().trim() === "") {
+            // Keeping the "data" listener untill the client is started.
+            client.stdout.removeListener("data", reader)
             // Running Callback in fiber to make it sync aware
             sync.fiber(function () {
                callback(socketNER)
             })
          }
-      })
+      }
    }
 
    function tagIt(rawText, reqEntity, cb) {
       client.stdin.write(rawText)
       client.stdout.once("data", function (data) {
-         taggedText = data.toString()
+         // Trim() is necessary to avoid leading and follwing line breaks.
+         var taggedText = data.toString().trim()
          // Synchronize module follows (err, data) format for cb.
-         // Trim() is necessary to avoid leading and follwing 
-         // line breaks.
-         cb(null, socketNER.parser(taggedText.trim(), reqEntity))
+         cb(null, socketNER.parser(taggedText, reqEntity))
       })
    }
 

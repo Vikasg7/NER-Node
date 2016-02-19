@@ -1,6 +1,5 @@
 // Terminal command to run the test file :- node test.js
-var rawText = 
-[
+var rawText = [
 	'Steven Paul Jobs (/\ˈdʒɒbz/; February 24, 1955 – October 5,',
 	'2011) was an American technology entrepreneur, visionary and ',
 	'inventor. He was the co-founder, chairman, and chief executive',

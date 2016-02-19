@@ -1,7 +1,7 @@
 <h1>NER-Node</h2>
 <h5>Library to connect to Stanford NER local Server, send in the Raw Text and get back Entity JSON</h5>
 
-<h4><i>4X performance boost with same syntax in versions 0.0.5 and further. Please do upgrade.</i></h4>
+<h4><i>4X performance boost with same syntax in versions 0.0.6 and further. Please do upgrade.</i></h4>
 
 <h4>Installation</h4>
 <ol>
@@ -30,7 +30,7 @@ socketNER(port, classifierFileName, pathToNER, function (obj) {
 </p>
 
 <h4>Updates</h4>
-<p>Its 20-Feb-2016. I have pushed an update to make the library run 4x faster than previous versions. so please <strong>use version 0.0.5</strong> or lastest for production purposes. There has been no change in the Syntax.</p>
+<p>Its 20-Feb-2016. I have pushed an update to make the library run 4x faster than previous versions. so please <strong>use version 0.0.6</strong> or lastest for production purposes. There has been no change in the Syntax.</p>
 
 <h4>Issues & Suggestions</h4>
 <p>If you find an issues using the Library OR if you have any suggestions to make it perform better, then you can write to us in the Issues Section.</p>
