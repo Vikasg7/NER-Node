@@ -1,6 +1,6 @@
 {
   "name": "ner-node",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Node library for spawning NER server and pinging it to get entities out of raw text.",
   "main": "SocketNER.js",
   "scripts": {
@@ -21,6 +21,6 @@
     "Socket NER"
   ],
   "dependencies": {
-    "synchronize": "^0.9.15"
+    "deasync": "^0.1.4"
   }
 }

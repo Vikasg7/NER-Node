@@ -1,101 +1,109 @@
 var spawn = require("child_process").spawn
-var sync = require("synchronize")
+var deasync = require("deasync")
 
-function SocketNER(port, classifierFileName, pathToNER, callback) {
-   //defining defaults if arguments is a false value
-   port = port || 1234
-   classifierFileName = classifierFileName || "english.all.3class.distsim.crf.ser.gz"
-   pathToNER = pathToNER || "/"
-   var client
-
-   // starting server as a seperate process
-   var server = spawn(
-      "java",[
-         "-mx750m", "-cp",
-         pathToNER + "stanford-ner.jar", 
-         "edu.stanford.nlp.ie.NERServer", 
-         "-loadClassifier", pathToNER + classifierFileName, 
-         "-port", port, "-outputFormat", "inlineXML"
-      ]
-   )
-
-   // I don't know why server's stderr stream gets 
-   // all output and why stdout don't
-   server.stderr.on("data", function (data) {
-      // Server would finish loading, 
-      // when it flushes out 'done [x secs]'
-      if (data.toString().search("done") > -1) { 
-         startNERClient()
-      }
-   })
-   
-   function startNERClient() {
-      client = spawn(
-         "java",[
-            "-cp",
-            pathToNER + "stanford-ner.jar", 
-            "edu.stanford.nlp.ie.NERServer", 
-            "-port", port, "-client"
-         ]
-      )
-
-      // This "data" listener would be removed soon.      
-      client.stdout.on("data", reader) 
-
-      function reader(data) {
-         if (data.toString().trim() === "") {
-            // Keeping the "data" listener untill the client is started.
-            client.stdout.removeListener("data", reader)
-            // Running Callback in fiber to make it sync aware
-            sync.fiber(function () {
-               callback(socketNER)
-            })
-         }
-      }
-   }
-
-   function tagIt(rawText, reqEntity, cb) {
-      client.stdin.write(rawText)
-      client.stdout.once("data", function (data) {
-         // Trim() is necessary to avoid leading and follwing line breaks.
-         var taggedText = data.toString().trim()
-         // Synchronize module follows (err, data) format for cb.
-         cb(null, socketNER.parser(taggedText, reqEntity))
-      })
-   }
-
-   var socketNER = {}
-
-   socketNER.getEntities = function (rawText, reqEntity) {
-      rawText = rawText.replace(/[\r\n\f\t\v]/g, " ") + "\n"      
-      return sync.await(tagIt(rawText, reqEntity, sync.defer()))      
-   }
-
-   // Closes the socket and kills the server process
-   socketNER.close = function () {
-      client.kill()
-      server.kill()
-   }
-
-   // Passing in 'the parser' to the socketNER return object, 
-   // so that user could be able to define his own parser later on
-   socketNER.parser = function (taggedText, requiredEntity) {
-      var matches, entities = {} // return value of parser function
-      requiredEntity = requiredEntity.toUpperCase()
-      var re = requiredEntity ? new RegExp(["<(",requiredEntity,"?)>(.*?)<\/",requiredEntity,"?>"].join(""), "g") 
-                              : /<([A-Z]+?)>(.*?)<\/[A-Z]+?>/g
-      while((matches = re.exec(taggedText)) !== null) {
-         if (entities[matches[1]]) {
-            // if tagName is present, then pushing in the tagValue Array
-            entities[matches[1]].push(matches[2])
-         }
-         else {
-            // otherwise adding the tagName with a new tagValue Array
-            entities[matches[1]] = [matches[2]]
-         }
-      }
-      return entities
-   }
+function socketNER(port, classifierFileName, pathToNER) {
+   this.port = port || 1234
+   this.classifier = classifierFileName || "english.all.3class.distsim.crf.ser.gz"
+   this.pathToNER = pathToNER || "/"
+   this.server = undefined
+   this.client = undefined
 }
 
-module.exports = SocketNER
+socketNER.prototype.startServer = deasync(function (cb) {
+   var self = this
+   self.server = spawn(
+      "java",[
+         "-mx750m", "-cp",
+         self.pathToNER + "stanford-ner.jar", 
+         "edu.stanford.nlp.ie.NERServer", 
+         "-loadClassifier", self.pathToNER + self.classifier, 
+         "-port", self.port, "-outputFormat", "inlineXML"
+      ]
+   )
+   // I don't know why server's stderr stream gets 
+   // all output and why stdout don't.
+   self.server.stderr.on("data", reader)
+   // Server would finish loading, when it flushes 
+   // out 'done [x secs]'
+   function reader(data) {
+      if (data.toString().search("done") > -1) {
+         // Removing listener
+         self.server.stderr.removeListener("data", reader)
+         cb(null, true)
+      }
+   }
+})
+
+socketNER.prototype.startClient = deasync(function (cb) {
+   var self = this
+   self.client = spawn(
+      "java",[
+         "-cp",
+         self.pathToNER + "stanford-ner.jar", 
+         "edu.stanford.nlp.ie.NERServer", 
+         "-port", self.port, "-client"
+      ]
+   )
+   self.client.stdout.once("data", function (data) {
+      if (data.toString().trim().match(/^Input some text/g)) {
+         cb(null, true)
+      }      
+   })
+})
+
+socketNER.prototype.init = function () {
+   var self = this
+   self.startServer()
+   self.startClient()
+}
+
+socketNER.prototype.close = function () {
+   var self = this
+   self.server.kill()
+   self.client.kill()
+}
+
+socketNER.prototype.getEntities = function (rawText, reqEntity) {
+   var self = this
+   rawText = rawText.replace(/[\r\n\f\t\v]/g, " ") + "\n"
+   return self.tagIt(rawText, reqEntity)
+}
+
+socketNER.prototype.tagIt = deasync(function (rawText, reqEntity, cb) {
+   var self = this
+   // Emptying the readable stream to make it writable
+   self.client.stdout.read()
+   // Writing to writable stream to push rawText to NER server
+   self.client.stdin.write(rawText)
+   // Processing data when NER server sends back data to stream
+   // making stream readable again. "data" event would emptify the
+   // readable stream to make it writable again.
+   self.client.stdout.once("data", function (data) {
+      // Trim() is necessary to avoid leading and follwing line breaks.
+      var taggedText = data.toString().trim()
+      // Synchronize module follows (err, data) format for cb.
+      cb(null, self.parser(taggedText, reqEntity))
+   })
+})
+
+socketNER.prototype.parser = function (taggedText, reqEntity) {
+   var matches, entities = {} // return value of parser function
+   reqEntity = reqEntity ? reqEntity.toUpperCase() : ""
+   var re = reqEntity ? new RegExp(["<(",reqEntity,"?)>(.*?)<\/",reqEntity,"?>"].join(""), "g") 
+                      : /<([A-Z]+?)>(.*?)<\/[A-Z]+?>/g
+   while((matches = re.exec(taggedText)) !== null) {
+      if (entities[matches[1]]) {
+         // if tagName is present, then pushing in the tagValue Array
+         entities[matches[1]].push(matches[2])
+      }
+      else {
+         // otherwise adding the tagName with a new tagValue Array
+         entities[matches[1]] = [matches[2]]
+      }
+   }
+   return entities
+}
+
+module.exports = function (port, classifierFileName, pathToNER) {
+   return new socketNER(port, classifierFileName, pathToNER)
+}
